@@ -51,11 +51,11 @@ class Training:
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
-        name = self.__class__.__name__
-        dur = self.duration
-        dist = self.get_distance()
-        mean_speed = self.get_mean_speed()
-        spent_calories = self.get_spent_calories()
+        name: str = self.__class__.__name__
+        dur: float = self.duration
+        dist: float = self.get_distance()
+        mean_speed: float = self.get_mean_speed()
+        spent_calories: float = self.get_spent_calories()
         info_message = InfoMessage(name, dur, dist, mean_speed, spent_calories)
         return info_message
 
@@ -127,19 +127,13 @@ class Swimming(Training):
 def read_package(workout_type: str, data: list) -> Training:
     """Прочитать данные полученные от датчиков."""
     training_dict = {'SWM': Swimming, 'RUN': Running, 'WLK': SportsWalking}
-    if workout_type == 'SWM':
-        return Swimming(data[0], data[1], data[2], data[3], data[4])
-    elif workout_type == 'RUN':
-        return Running(data[0], data[1], data[2])
-    elif workout_type == 'WLK':
-        return SportsWalking(data[0], data[1], data[2], data[3])
+    return training_dict[workout_type](*data)
 
 
 def main(training: Training) -> None:
     """Главная функция."""
     info = training.show_training_info()
     print(info.get_message())
-    pass
 
 
 if __name__ == '__main__':
