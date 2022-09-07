@@ -90,11 +90,11 @@ class SportsWalking(Training):
 
 @dataclass
 class Swimming(Training):
+    length_pool: int
+    count_pool: int
     LEN_STEP = 1.38
     MEAN_SPEED_OFFSET = 1.1
     MEAN_SPEED_COEF = 2
-    length_pool: int
-    count_pool: int
 
     def get_mean_speed(self) -> float:
         return self.length_pool * self.count_pool / self.M_IN_KM \
