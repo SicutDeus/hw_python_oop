@@ -2,6 +2,11 @@ from dataclasses import dataclass
 from typing import List, Dict
 
 
+class KeyOrDataError(Exception):
+    """Вызывается, когда в словарь передан неверный ключи и (или)
+    передано неверное кол-во параметров"""
+
+
 @dataclass
 class InfoMessage:
     """Информационное сообщение о тренировке."""
@@ -57,14 +62,14 @@ class Training:
 
 @dataclass
 class Running(Training):
-    MEAN_SPEED_MULTIPLIER_CALORIE = 18
-    MEAN_SPEED_OFFSET_CALORIE = 20
+    CALORIES_MEAN_SPEED_MULTIPLIER = 18
+    CALORIES_MEAN_SPEED_OFFSET = 20
 
     def get_spent_calories(self) -> float:
         return (
             (
-                self.MEAN_SPEED_MULTIPLIER_CALORIE * self.get_mean_speed()
-                - self.MEAN_SPEED_OFFSET_CALORIE
+                self. CALORIES_MEAN_SPEED_MULTIPLIER * self.get_mean_speed()
+                - self.CALORIES_MEAN_SPEED_OFFSET
             )
             * self.weight
             / self.M_IN_KM
@@ -77,19 +82,19 @@ class Running(Training):
 class SportsWalking(Training):
     height: int
 
-    WEIGHT_MULTIPLIER_CALORIES = 0.035
-    MEAN_SPEED_GRADE_CALORIES = 2
-    MEAN_SPEED_AND_HEIGHT_MULTIPLIER_CALORIES = 0.029
+    CALORIES_WEIGHT_MULTIPLIER = 0.035
+    CALORIES_MEAN_SPEED_GRADE = 2
+    CALORIES_MEAN_SPEED_MULTIPLIER = 0.029
 
     def get_spent_calories(self) -> float:
         return (
             (
-                self.WEIGHT_MULTIPLIER_CALORIES * self.weight
+                self.CALORIES_WEIGHT_MULTIPLIER * self.weight
                 + (
-                    self.get_mean_speed() ** self.MEAN_SPEED_GRADE_CALORIES
+                    self.get_mean_speed() ** self.CALORIES_MEAN_SPEED_GRADE
                     // self.height
                 )
-                * self.MEAN_SPEED_AND_HEIGHT_MULTIPLIER_CALORIES
+                * self.CALORIES_MEAN_SPEED_MULTIPLIER
             )
             * self.duration
             * self.MIN_IN_H
@@ -102,8 +107,8 @@ class Swimming(Training):
     count_pool: int
 
     LEN_STEP = 1.38
-    MEAN_SPEED_OFFSET_CALORIE = 1.1
-    MEAN_SPEED_COEF_CALORIE = 2
+    CALORIES_MEAN_SPEED_OFFSET = 1.1
+    CALORIES_MEAN_SPEED_MULTIPLIER = 2
 
     def get_mean_speed(self) -> float:
         return (
@@ -112,13 +117,17 @@ class Swimming(Training):
 
     def get_spent_calories(self) -> float:
         return (
-            (self.get_mean_speed() + self.MEAN_SPEED_OFFSET_CALORIE)
-            * self.MEAN_SPEED_COEF_CALORIE
+            (self.get_mean_speed() + self.CALORIES_MEAN_SPEED_OFFSET)
+            * self.CALORIES_MEAN_SPEED_MULTIPLIER
             * self.weight
         )
 
 
-TRAININGS: Dict = {'SWM': Swimming, 'RUN': Running, 'WLK': SportsWalking}
+TRAININGS: Dict[str, Training] = {
+    "SWM": Swimming,
+    "RUN": Running,
+    "WLK": SportsWalking
+}
 
 
 def read_package(workout_type: str, data: List[int]) -> Training:
@@ -126,17 +135,14 @@ def read_package(workout_type: str, data: List[int]) -> Training:
     try:
         return TRAININGS[workout_type](*data)
     except (KeyError, TypeError):
-        return None
-
-
-def main(training: Training) -> None:
-    try:
-        print(training.show_training_info().get_message())
-    except AttributeError:
-        print(
+        raise KeyOrDataError(
             "Был передан неверный ключ и(или)"
             "количество входных параметров не совпадает с необходимым"
         )
+
+
+def main(training: Training) -> None:
+    print(training.show_training_info().get_message())
 
 
 if __name__ == '__main__':
