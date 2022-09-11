@@ -122,8 +122,8 @@ class Swimming(Training):
     count_pool: int
 
     LEN_STEP = 1.38
-    CALORIES_MEAN_SPEED_OFFSET = 1.1
     CALORIES_WEIGHT_MULTIPLIER = 2
+    CALORIES_MEAN_SPEED_OFFSET = 1.1
 
     def get_mean_speed(self) -> float:
         """Вычисление средней скорости при плавании."""
@@ -153,7 +153,7 @@ def read_package(workout_type: str, data: List[int]) -> Training:
         return TRAININGS[workout_type](*data)
     except (KeyError, TypeError):
         raise KeyOrDataError(
-            'Был передан неверный ключ и (или)'
+            'Передан неверный ключ и (или)'
             'количество входных параметров не совпадает с необходимым',
         )
 
