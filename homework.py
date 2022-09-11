@@ -1,15 +1,20 @@
+"""Модуль фитнес-трекера."""
 from dataclasses import dataclass
-from typing import List, Dict
+from typing import Dict, List, Type
 
 
 class KeyOrDataError(Exception):
-    """Вызывается, когда в словарь передан неверный ключи и (или)
-    передано неверное кол-во параметров"""
+    """Ошибка входных данных.
+
+    Вызывается, когда в словарь передан неверный ключи и (или)
+    передано неверное кол-во параметров
+    """
 
 
 @dataclass
 class InfoMessage:
     """Информационное сообщение о тренировке."""
+
     training_type: str
     duration: float
     distance: float
@@ -17,6 +22,7 @@ class InfoMessage:
     calories: float
 
     def get_message(self) -> str:
+        """Возвращает строку-информацию о тренировке."""
         return (
             f'Тип тренировки: {self.training_type}; '
             f'Длительность: {self.duration:.3f} ч.; '
@@ -29,6 +35,7 @@ class InfoMessage:
 @dataclass
 class Training:
     """Базовый класс тренировки."""
+
     action: str
     duration: float
     weight: float
@@ -62,10 +69,13 @@ class Training:
 
 @dataclass
 class Running(Training):
+    """Класс бега."""
+
     CALORIES_MEAN_SPEED_MULTIPLIER = 18
     CALORIES_MEAN_SPEED_OFFSET = 20
 
     def get_spent_calories(self) -> float:
+        """Вычисление потраченных калорий при беге."""
         return (
             (
                 self. CALORIES_MEAN_SPEED_MULTIPLIER * self.get_mean_speed()
@@ -80,13 +90,16 @@ class Running(Training):
 
 @dataclass
 class SportsWalking(Training):
+    """Класс спортивной ходьбы."""
+
     height: int
 
+    CALORIES_MEAN_SPEED_MULTIPLIER = 0.029
     CALORIES_WEIGHT_MULTIPLIER = 0.035
     CALORIES_MEAN_SPEED_GRADE = 2
-    CALORIES_MEAN_SPEED_MULTIPLIER = 0.029
 
     def get_spent_calories(self) -> float:
+        """Получение количества затраченных калорий при спортивной ходьбе."""
         return (
             (
                 self.CALORIES_WEIGHT_MULTIPLIER * self.weight
@@ -103,30 +116,34 @@ class SportsWalking(Training):
 
 @dataclass
 class Swimming(Training):
+    """Класс плавания."""
+
     length_pool: int
     count_pool: int
 
     LEN_STEP = 1.38
     CALORIES_MEAN_SPEED_OFFSET = 1.1
-    CALORIES_MEAN_SPEED_MULTIPLIER = 2
+    CALORIES_WEIGHT_MULTIPLIER = 2
 
     def get_mean_speed(self) -> float:
+        """Вычисление средней скорости при плавании."""
         return (
             self.length_pool * self.count_pool / self.M_IN_KM / self.duration
         )
 
     def get_spent_calories(self) -> float:
+        """Вычисление потраченных калорий при плавании."""
         return (
             (self.get_mean_speed() + self.CALORIES_MEAN_SPEED_OFFSET)
-            * self.CALORIES_MEAN_SPEED_MULTIPLIER
+            * self.CALORIES_WEIGHT_MULTIPLIER
             * self.weight
         )
 
 
-TRAININGS: Dict[str, Training] = {
-    "SWM": Swimming,
-    "RUN": Running,
-    "WLK": SportsWalking
+TRAININGS: Dict[str, Type[Training]] = {
+    'SWM': Swimming,
+    'RUN': Running,
+    'WLK': SportsWalking,
 }
 
 
@@ -136,20 +153,22 @@ def read_package(workout_type: str, data: List[int]) -> Training:
         return TRAININGS[workout_type](*data)
     except (KeyError, TypeError):
         raise KeyOrDataError(
-            "Был передан неверный ключ и(или)"
-            "количество входных параметров не совпадает с необходимым"
+            'Был передан неверный ключ и (или)'
+            'количество входных параметров не совпадает с необходимым',
         )
 
 
 def main(training: Training) -> None:
-    print(training.show_training_info().get_message())
+    """Вывод полученный информации о результатах тренировки."""
+    print(training.show_training_info().get_message())  # noqa: T201
 
 
 if __name__ == '__main__':
     packages = [
         ('SWM', [720, 1, 80, 25, 40]),
         ('RUN', [15000, 1, 75]),
-        ('WLK', [9000, 1, 75, 180])]
+        ('WLK', [9000, 1, 75, 180]),
+    ]
     for workout_type, data in packages:
         training = read_package(workout_type, data)
         main(training)
