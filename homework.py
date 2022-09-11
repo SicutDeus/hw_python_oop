@@ -160,7 +160,7 @@ def read_package(workout_type: str, data: List[int]) -> Training:
 
 def main(training: Training) -> None:
     """Вывод полученный информации о результатах тренировки."""
-    print(training.show_training_info().get_message())  # noqa
+    print(training.show_training_info().get_message())
 
 
 if __name__ == '__main__':
